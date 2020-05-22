@@ -179,6 +179,7 @@ class Student:
                     
         crsr.execute(query)
         ans= crsr.fetchall()
+        
         if len(ans) > 1:
             raise MultipleObjectsReturned
         if ans == []:
@@ -186,7 +187,9 @@ class Student:
         
         connection.close()
         
-        return cls(student_id = ans[0][0],name = ans[0][1],age = ans[0][2],score = ans[0][3])
+        student_obj = Student(student_id = ans[0][0],name = ans[0][1],age = ans[0][2],score = ans[0][3])
+        
+        return student_obj
     
     def delete(self):
         import sqlite3
@@ -200,12 +203,17 @@ class Student:
         import sqlite3
         connection = sqlite3.connect("students.sqlite3")
         crsr = connection.cursor()
+        crsr.execute("SELECT student_id FROM Student WHERE student_id = ?",(self.student_id,))
+        a = crsr.fetchall()
         if self.student_id == None:
             crsr.execute("INSERT INTO Student(name,age,score)VALUES(?,?,?)",(self.name,self.age,self.score))
             self.student_id = crsr.lastrowid
+        
+        elif a == []:
+            crsr.execute("INSERT or REPLACE INTO Student(student_id,name,age,score)VALUES(?,?,?,?)",(self.student_id,self.name,self.age,self.score))
+        
         else:
-            crsr.execute("UPDATE Student SET name = '{}',age = {},score = {} WHERE student_id = {}".format(self.name,self.age,self.score,self.student_id))
+            crsr.execute("UPDATE Student SET name = ?,age = ?,score = ? WHERE student_id = ?",(self.name,self.age,self.score,self.student_id))
         
         connection.commit()
         connection.close()
-
