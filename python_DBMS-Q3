@@ -241,8 +241,8 @@ class Student:
         self.score = score
     
     @staticmethod    
-    def aggregations(agg = None,field = None, **kwargs):
-        list = ['student_id','name','age','score']
+    def aggregations(agg = None,field = '*', **kwargs):
+        list = ['student_id','name','age','score','*']
         
         multiple_values = []
         
@@ -281,7 +281,7 @@ class Student:
         x = ' AND '.join(multiple_values)
         
         if x == "":
-            crsr.execute("SELECT {}({}) FROM Student".format(agg,'*'))
+            crsr.execute("SELECT {}({}) FROM Student".format(agg,field))
         else:
             crsr.execute("SELECT {}({}) FROM Student WHERE {}".format(agg,field,x))
         
@@ -320,7 +320,7 @@ class Student:
         return ans
         
     @classmethod
-    def count(cls, field = None, **kwargs):
+    def count(cls, field = '*' ,**kwargs):
         
         ans = cls.aggregations('COUNT', field, **kwargs)
         return ans
