@@ -1,8 +1,11 @@
 Create a folder /home/ec2-user/environment/dbms/dbms_submissions/dbms_assignment_014. Make use of the below example command
 $ mkdir -p /home/ec2-user/environment/dbms/dbms_submissions/dbms_assignment_014/
+
 #Coding Guidelines
 Write your code in student.py
+
 # Problem Statement
+
 A Student has name, age, score and student_id attributes, Where student_id value is unique for each student object.
 
 Student class for the above mentioned details:
@@ -44,6 +47,7 @@ Greater Than Or Equal To
 Not Equal To
 In
 Contains
+
 # Data in Table
 student_id	name	age	score
 1	Maude Vanhorne	23	89
@@ -56,6 +60,7 @@ student_id	name	age	score
 8	Brandon Ashton	24	16
 9	Cynthia Knuth	32	17
 10	Hazel Wood	35	8
+
 # avg()
 avg() function is used to calculate the average of values for the particular field. It should take two parameters one parameter is the field for which you need to calculate average and another is **kwargs which takes conditions, it is an optional parameter.
 
@@ -216,7 +221,7 @@ Learn defining custom exceptions in Python in this reference
 
 
 
--------------------
+------------------------------------------------------------------------------------------
 
 
 class InvalidField(Exception):
