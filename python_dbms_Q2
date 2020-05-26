@@ -148,6 +148,14 @@ We use __contains along with the field to mention contains condition.
 [Student(student_id=4, name=Jesse Couch, age=34, score=62)]
 Implement a filter method so that the above operation, fetches all the student objects whose name contains Jesse.
 
+# Task9 - Multiple Conditions:
+
+User should be able to specify multiple conditions for the filter method.
+
+>>> selected_students = Student.filter(age__in = [25, 34], score__lt=50)
+>>> selected_students
+[Student(student_id=2, name=Sarah Kirwan, age=34, score=44), Student(student_id=7, name=Stephen Boone, age=25, score=39)]
+
 # Learning Material
 Sample python snippets to execute SQL queries.
 def write_data(sql_query):
@@ -225,6 +233,7 @@ class Student:
         
         if len(ans) > 1:
             raise MultipleObjectsReturned
+            
         if ans == []:
             raise DoesNotExist
         
@@ -268,6 +277,8 @@ class Student:
         
         filter_obj = []
         
+        multiple_values = []
+        
         import sqlite3
         connection = sqlite3.connect("selected_students.sqlite3")
         crsr = connection.cursor()
@@ -277,83 +288,34 @@ class Student:
             a = i.split('__')
             if a[0] not in list:
                 raise InvalidField
+                
+            oper = {'gt':'>', 'lt':'<', 'lte':'<=', 'gte':'>=', 'neq':'<>', 'eq' : '='}
             
-            if i == 'age':
-                crsr.execute("SELECT * FROM Student WHERE age = ?",(j,))
+            if len(a) == 1:
+                val = "{} {} '{}' ".format(a[0],oper['eq'],j)
                 
-            elif i == 'age__lt':
-                crsr.execute("SELECT * FROM Student WHERE age < ?",(j,))
-                
-            elif i == 'age__lte':
-                crsr.execute("SELECT * FROM Student WHERE age <= ?",(j,))
-                
-            elif i == 'age__gt':
-                crsr.execute("SELECT * FROM Student WHERE age > ?",(j,))
-            
-            elif i == 'age__gte':
-                crsr.execute("SELECT * FROM Student WHERE age >= ?",(j,))
-                
-            elif i == 'age__neq':
-                crsr.execute("SELECT * FROM Student WHERE age <> ?",(j,))
-                
-            elif i == 'age__in':
+            elif a[1] == 'in':
                 j = tuple(j)
-                crsr.execute("SELECT * FROM Student WHERE age IN {}".format(j))
-                
-            elif i == 'score__gt':
-                crsr.execute("SELECT * FROM Student WHERE score > ?",(j,))
+                val = "{} {} {}".format(a[0],'IN',j)
             
-            elif i == 'score__lt':
-                crsr.execute("SELECT * FROM Student WHERE score < ?",(j,))
+            elif a[1] == 'contains':
+                val = "{} {} '%{}%' ".format(a[0],'LIKE',j)
                 
-            elif i == 'score__lte':
-                crsr.execute("SELECT * FROM Student WHERE score <= ?",(j,))
+            else:
+                val = "{} {} '{}' ".format(a[0],oper[a[1]],j)
                 
-            elif i == 'score__gte':
-                crsr.execute("SELECT * FROM Student WHERE score >= ?",(j,))
-                
-            elif i == 'score__neq':
-                crsr.execute("SELECT * FROM Student WHERE score <> ?",(j,))
-                
-            elif i == 'score__in':
-                j = tuple(j)
-                crsr.execute("SELECT * FROM Student WHERE score IN {}".format(j))
-                
-            if i == 'student_id':
-                crsr.execute("SELECT * FROM Student WHERE student_id = ?",(j,))
-                
-            elif i == 'student_id__gt':
-                crsr.execute("SELECT * FROM Student WHERE student_id > ?",(j,))
-            
-            elif i == 'student_id__lt':
-                crsr.execute("SELECT * FROM Student WHERE student_id < ?",(j,))
-                
-            elif i == 'student_id__lte':
-                crsr.execute("SELECT * FROM Student WHERE student_id <= ?",(j,))
-                
-            elif i == 'student_id__gte':
-                crsr.execute("SELECT * FROM Student WHERE student_id >= ?",(j,))
-                
-            elif i == 'student_id__neq':
-                crsr.execute("SELECT * FROM Student WHERE student_id <> ?",(j,))
-                
-            elif i == 'student_id__in':
-                j = tuple(j)
-                crsr.execute("SELECT * FROM Student WHERE student_id IN {}".format(j))
-                
-            elif i == 'name__contains':
-                crsr.execute("SELECT * FROM Student WHERE name LIKE '%{}%' ".format(j))
-                
-            elif i == 'name__neq':
-                crsr.execute("SELECT * FROM Student WHERE name <> ?",(j,))
-                
-            ans = crsr.fetchall()
-            
-            for obj in ans:
-                filter_obj.append(cls(student_id = obj[0],name = obj[1],age = obj[2],score = obj[3]))
+            multiple_values.append(val)
+        
+        
+        x = ' AND '.join(multiple_values)
+        
+        crsr.execute("SELECT * FROM Student WHERE {}".format(x))
+        ans = crsr.fetchall()
+        
+        for obj in ans:
+            filter_obj.append(cls(student_id = obj[0],name = obj[1],age = obj[2],score = obj[3]))
                 
         connection.commit()
         connection.close()
         
         return filter_obj
-        
